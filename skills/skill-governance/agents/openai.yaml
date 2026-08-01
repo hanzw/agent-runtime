@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Governance"
+  short_description: "Evaluate Skills with minimal Promptfoo ablations"
+  default_prompt: "Use $skill-governance to decide whether a Skill should be kept, updated, or removed."

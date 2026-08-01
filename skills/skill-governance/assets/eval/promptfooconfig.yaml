@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: 'First-principles skill ablation'
+
+prompts:
+  - file://prompts/governance.txt
+
+x-result-schema: &resultSchema
+  type: object
+  additionalProperties: false
+  required: [outcome, known, proof_type, next_smallest_proof, deferred, actions, decisions]
+  properties:
+    outcome:
+      type: string
+      minLength: 1
+    known:
+      type: array
+      minItems: 1
+      items: { type: string }
+    proof_type:
+      type: string
+      enum: [controlled_ablation, offline_audit, repository_check, live_check]
+    next_smallest_proof:
+      type: string
+      minLength: 1
+    deferred:
+      type: array
+      minItems: 1
+      items: { type: string }
+    actions:
+      type: array
+      minItems: 1
+      maxItems: 3
+      items: { type: string }
+    decisions:
+      type: object
+      additionalProperties: false
+      required: [shadow_registry, observability_stack, runtime_schema_change, reme_role, gsd_role]
+      properties:
+        shadow_registry:
+          type: string
+          enum: [reject, defer, allow, not_applicable]
+        observability_stack:
+          type: string
+          enum: [reject, defer, allow, not_applicable]
+        runtime_schema_change:
+          type: string
+          enum: [reject, defer, allow, not_applicable]
+        reme_role:
+          type: string
+          enum: [keep, remove, defer, not_applicable]
+        gsd_role:
+          type: string
+          enum: [keep, remove, defer, not_applicable]
+
+providers:
+  - id: openai:codex-sdk
+    label: no-first-principles-skill
+    config:
+      model: gpt-5.6-terra
+      model_reasoning_effort: medium
+      working_dir: ./fixtures/baseline
+      sandbox_mode: read-only
+      enable_streaming: true
+      output_schema: *resultSchema
+      cli_env:
+        CODEX_HOME: '{{env.PILOT_CODEX_HOME}}'
+  - id: openai:codex-sdk
+    label: with-first-principles-skill
+    config:
+      model: gpt-5.6-terra
+      model_reasoning_effort: medium
+      working_dir: ./fixtures/current
+      sandbox_mode: read-only
+      enable_streaming: true
+      output_schema: *resultSchema
+      cli_env:
+        CODEX_HOME: '{{env.PILOT_CODEX_HOME}}'
+
+defaultTest:
+  assert:
+    - type: is-json
+      value: *resultSchema
+
+tests:
+  - file://tests/*.yaml

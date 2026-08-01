@@ -1,0 +1,10 @@
+{{request}}
+
+Return only JSON matching the required schema. Decision values mean:
+- reject: explicitly do not add or keep it;
+- defer: make no change until the stated proof exists;
+- allow: add or keep it now;
+- not_applicable: unrelated to this request.
+
+For reme_role and gsd_role, use keep only when their stated existing role should
+remain; remove only when that role itself should be deleted.
