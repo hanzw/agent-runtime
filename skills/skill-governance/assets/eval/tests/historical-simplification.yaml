@@ -2,10 +2,10 @@
   vars:
     request: >-
       我想用历史数据持续提升全局 Agent Skills。候选技术包括 Grafana LGTM、
-      SigNoz、Phoenix、Langfuse、Promptfoo、ReMe、GSD，以及一个新的自定义
+      SigNoz、Phoenix、Langfuse、Promptfoo、ReMe、Buildomator，以及一个新的自定义
       Skill Registry。目标不是功能最多，而是最精简且能证明 Skill 是否应该增删改。
       当前 Codex/Claude 原生 Skill discovery 是唯一真值，不允许再建立影子 registry。
-      ReMe 已承担 durable memory，GSD 已承担长任务状态；两者都不是评测器，职责不重复。
+      ReMe 已承担 durable memory，Buildomator 已承担长任务状态；两者都不是评测器，职责不重复。
       请给出现在应该执行的最小方案，明确保留、删除或推迟什么。
   assert:
     - type: is-json
@@ -17,12 +17,12 @@
           proof_type: { const: controlled_ablation }
           decisions:
             type: object
-            required: [shadow_registry, observability_stack, reme_role, gsd_role]
+            required: [shadow_registry, observability_stack, reme_role, task_state_role]
             properties:
               shadow_registry: { const: reject }
               observability_stack: { enum: [reject, defer] }
               reme_role: { const: keep }
-              gsd_role: { const: keep }
+              task_state_role: { const: keep }
 
 - description: 'Turns sparse history into one useful proof'
   vars:

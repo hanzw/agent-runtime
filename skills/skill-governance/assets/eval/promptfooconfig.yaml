@@ -34,7 +34,7 @@ x-result-schema: &resultSchema
     decisions:
       type: object
       additionalProperties: false
-      required: [shadow_registry, observability_stack, runtime_schema_change, reme_role, gsd_role]
+      required: [shadow_registry, observability_stack, runtime_schema_change, reme_role, task_state_role]
       properties:
         shadow_registry:
           type: string
@@ -48,13 +48,13 @@ x-result-schema: &resultSchema
         reme_role:
           type: string
           enum: [keep, remove, defer, not_applicable]
-        gsd_role:
+        task_state_role:
           type: string
           enum: [keep, remove, defer, not_applicable]
 
 providers:
   - id: openai:codex-sdk
-    label: no-first-principles-skill
+    label: baseline-no-target-skill
     config:
       model: gpt-5.6-terra
       model_reasoning_effort: medium
@@ -65,7 +65,7 @@ providers:
       cli_env:
         CODEX_HOME: '{{env.PILOT_CODEX_HOME}}'
   - id: openai:codex-sdk
-    label: with-first-principles-skill
+    label: treatment-with-target-skill
     config:
       model: gpt-5.6-terra
       model_reasoning_effort: medium

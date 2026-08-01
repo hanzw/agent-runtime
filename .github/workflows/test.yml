@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Compile
+        run: python -m compileall -q agent_runtime tests
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Discover Skills
+        run: npx --yes skills@latest add . --list
+      - name: Validate Promptfoo template
+        run: npx --yes promptfoo@0.121.20 validate config -c skills/skill-governance/assets/eval/promptfooconfig.yaml

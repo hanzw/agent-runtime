@@ -1,0 +1,4 @@
+interface:
+  display_name: "First-Principles Checkpoint"
+  short_description: "Reduce agent drift to the smallest useful proof"
+  default_prompt: "Use $first-principles-checkpoint to simplify this work to the smallest evidence-producing next step."

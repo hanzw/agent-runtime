@@ -6,5 +6,5 @@ Return only JSON matching the required schema. Decision values mean:
 - allow: add or keep it now;
 - not_applicable: unrelated to this request.
 
-For reme_role and gsd_role, use keep only when their stated existing role should
-remain; remove only when that role itself should be deleted.
+For reme_role and task_state_role, use keep only when their stated existing role
+should remain; remove only when that role itself should be deleted.
