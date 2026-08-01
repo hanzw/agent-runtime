@@ -17,10 +17,10 @@ behavior, and the smallest redacted evidence that proves the issue.
 
 This project installs user-level Codex and Claude Hooks and therefore executes
 for every managed lifecycle event. Review source and tests before installation.
-The runtime is not an operating-system sandbox and does not replace repository
-authorization, branch protection, CI, account permissions, or provider-side
-credential controls.
+The optional support runtime is not an operating-system sandbox and does not
+replace repository authorization, branch protection, CI, account permissions,
+or provider-side credential controls.
 
-The intended privacy guarantee is narrower: runtime evidence never stores raw
+The intended privacy guarantee is narrower: support evidence never stores raw
 prompts, commands, tool payloads, tool outputs, secrets, cookies, or full paths.
 Treat any violation of that guarantee as a security issue.

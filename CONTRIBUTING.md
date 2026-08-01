@@ -1,6 +1,6 @@
 # Contributing
 
-Keep changes small and traceable to one runtime invariant.
+Keep changes small and traceable to one Skill lifecycle or support invariant.
 
 1. Open an issue for a new capability or policy class.
 2. Add a focused regression test before changing behavior.

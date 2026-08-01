@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Skills"
+  short_description: "Keep, update, deduplicate, or remove Agent Skills"
+  default_prompt: "Use $evolve-skills to audit my installed Skills and apply the smallest evidence-backed lifecycle changes."

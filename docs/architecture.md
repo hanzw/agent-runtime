@@ -1,9 +1,21 @@
-# Architecture
+# Skill Evolution Architecture
 
-Agent Runtime is a user-level control plane shared by Codex and Claude. It
-coordinates lifecycle policy and bounded durable memory while deliberately
-leaving project truth, task orchestration, and Skill discovery to their native
-owners.
+Agent Skill Evolution treats the native Skill as the reusable capability unit.
+The repository also includes an optional user-level support runtime shared by
+Codex and Claude, but that implementation does not become a capability registry.
+
+## Terminology boundary
+
+| Layer | Responsibility | Not responsible for |
+| --- | --- | --- |
+| ADK or agent application framework | Build, orchestrate, evaluate, and deploy agent applications | Governing every installed native Skill |
+| Native Agent Skill | Package reusable instructions, workflows, tools, and resources | Long-task state, memory, or authorization |
+| Skill evolution | Discover, update, evaluate, deduplicate, and remove Skills | Running an agent application |
+| Support runtime | Deliver Hooks, enforce side-effect policy, recall bounded history | Defining a second capability type |
+
+“Glorious Evolution” is only a fictional visual metaphor. The architecture is a
+practical Skill lifecycle and has no game mechanics, character model, or Riot
+asset dependency.
 
 ## First principles
 
@@ -19,13 +31,13 @@ owners.
 | Concern | Canonical owner | Explicit non-owner |
 | --- | --- | --- |
 | Current code and operational truth | Repository, tests, contracts, live reads | ReMe |
-| Reusable procedure | Native Codex/Claude Skill discovery | Runtime registry |
+| Reusable procedure | Native Codex/Claude Skill discovery | Support runtime registry |
 | Current long-task continuation | Buildomator STATE or HANDOFF | ReMe |
 | Durable cross-session history | ReMe | Task state files |
 | Side-effect authorization | Policy Hooks plus repository evidence gates | Skills |
 | Skill lifecycle evidence | Promptfoo ablation | Production telemetry |
 
-## Runtime flow
+## Support runtime flow
 
 ```mermaid
 flowchart LR
@@ -48,7 +60,7 @@ policy classification and evidence.
 
 The default policy is intentionally small:
 
-| Effect | Runtime behavior |
+| Effect | Support behavior |
 | --- | --- |
 | Broad destructive filesystem or Git operation | Block |
 | Verification bypass | Block |
@@ -60,7 +72,7 @@ The default policy is intentionally small:
 | Exact single `git stash drop stash@{N}` | Allow |
 | Unclassified routine work | Allow |
 
-The runtime does not encode application names, database names, deployment
+The support runtime does not encode application names, database names, deployment
 accounts, or business authorization. Those belong in each repository.
 
 ### Evidence schema
@@ -82,7 +94,7 @@ atomic replacement. Event files rotate at a bounded size.
 
 ## Memory model
 
-The runtime pins ReMe `0.4.1.3` and AgentScope `2.0.4` in a private Python 3.11
+The support runtime pins ReMe `0.4.1.3` and AgentScope `2.0.4` in a private Python 3.11
 environment. ReMe runs as a loopback MCP service with a file-native workspace.
 
 The supplied profile intentionally enables only:
@@ -100,9 +112,9 @@ to global memory plus the current repository's hashed namespace. Git worktrees
 resolve to the main repository namespace; submodules retain independent
 namespaces.
 
-## Skill model
+## Skill evolution model
 
-The runtime does not copy, rank, or promote Skills. Native discovery remains
+The support runtime does not copy, rank, or promote Skills. Native discovery remains
 authoritative:
 
 ```text
@@ -110,6 +122,10 @@ project-local Skills -> project-specific procedure
 user-global Skills   -> reusable procedure across projects
 plugin Skills        -> versioned upstream capabilities
 ```
+
+`evolve-skills` owns portfolio-level inventory, canonical-source selection,
+updates, deduplication, and removal. It delegates uncertain value decisions to
+`skill-governance` instead of duplicating the evaluation procedure.
 
 `skill-governance` adds a controlled two-arm Promptfoo evaluation for one Skill
 at a time. It requires the same model and task in baseline and treatment arms,
@@ -168,6 +184,9 @@ The macOS installation creates:
 - `io.github.hanzw.agent-runtime`: six-hour health and permissions heartbeat;
 - `io.github.hanzw.agent-runtime.reme`: persistent loopback ReMe service.
 
+These service labels remain stable during the v2 line for upgrade compatibility;
+their names describe the internal implementation, not a public Skill capability.
+
 Both run at user level. ReMe uses a restrictive umask, private workspace
 permissions, and local-only transport. `--no-launchd` exists for synthetic test
 homes and unsupported environments; it does not provide a production service
@@ -186,7 +205,7 @@ This repository does not provide:
 - PageIndex, Buildomator, or Promptfoo as bundled dependencies.
 
 Those systems may integrate at their documented boundary without becoming part
-of the runtime.
+of the Skill layer.
 
 ## Where to adjust behavior
 
@@ -197,6 +216,7 @@ of the runtime.
 | Change ReMe capabilities | `agent_runtime/reme-minimal.yaml` | Profile and live smoke test |
 | Change managed files or lifecycle graph | `agent_runtime/installer.py` | Install, idempotency, rollback tests |
 | Change Skill decision rules | `skills/skill-governance` | Promptfoo ablation |
+| Change portfolio lifecycle rules | `skills/evolve-skills` | Native before/after discovery |
 
 Avoid adding a generic configuration layer for a one-off rule. The source plus
 focused tests is the intended five-minute explanation surface.
