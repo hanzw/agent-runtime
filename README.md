@@ -1,179 +1,178 @@
 <p align="center">
-  <img src="assets/agent-runtime-banner.png" alt="Agent Runtime — one control plane for Codex and Claude" width="100%">
+  <img src="assets/agent-skill-evolution-banner.png" alt="Agent Skill Evolution — discover, test, evolve, and remove Agent Skills" width="100%">
 </p>
 
-# Agent Runtime
+# Agent Skill Evolution
 
-One reversible control plane for engineers who use **Codex and Claude on the
-same machine** and are tired of duplicated Hooks, drifting memory, Skill sprawl,
-and global configuration that nobody can safely explain or roll back.
+**Evolution, not accumulation.** A native-Skill lifecycle system for engineers
+who use Codex and Claude and want capabilities to improve without turning their
+context into an attic.
 
-[![Tests](https://github.com/hanzw/agent-runtime/actions/workflows/test.yml/badge.svg)](https://github.com/hanzw/agent-runtime/actions/workflows/test.yml)
-[![Release](https://img.shields.io/github/v/release/hanzw/agent-runtime)](https://github.com/hanzw/agent-runtime/releases)
+[![Tests](https://github.com/hanzw/agent-skill-evolution/actions/workflows/test.yml/badge.svg)](https://github.com/hanzw/agent-skill-evolution/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/hanzw/agent-skill-evolution)](https://github.com/hanzw/agent-skill-evolution/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+The public capability is the **Skill layer**: discover, update, evaluate,
+deduplicate, and remove reusable procedures. Hooks, ReMe, receipts, and
+`launchd` are an optional support implementation—not a new kind of capability.
+
+## Three concepts that should not be mixed
+
+| Concept | What it actually is | Relationship to this repository |
+| --- | --- | --- |
+| [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/) | A code-first framework for building, orchestrating, evaluating, and deploying agent applications | Compatible, but neither required nor bundled |
+| Agent Skill Evolution | Lifecycle governance for portable, natively discovered Agent Skills | The product and public abstraction in this repository |
+| [Viktor's “Glorious Evolution”](https://www.leagueoflegends.com/en-gb/champions/viktor/) | A League of Legends fictional narrative about biomechanical transformation | A loose metaphor for deliberate capability improvement only |
+
+The artwork in this repository is original and depicts capability modules moving
+through tests. It does not reproduce Viktor, Riot artwork, logos, costumes, game
+UI, or other League of Legends assets. This project is not affiliated with or
+endorsed by Riot Games or Google.
 
 ## Who this is for
 
-- Engineers running both Codex and Claude across several repositories.
-- Small teams that want autonomous routine work with deterministic hard stops.
-- Long-running agent users who need durable history without injecting an
-  unbounded transcript into every session.
-- Skill-heavy setups that need evidence for keep/update/remove decisions.
+- Engineers using Codex and Claude across several repositories.
+- Skill-heavy setups that install more capabilities than they retire.
+- Teams that need one canonical source per capability across project, global,
+  and plugin scopes.
+- Long-running agent users who need bounded durable history without confusing
+  memory, task state, authorization, and Skills.
 
-It is intentionally macOS-first because the managed ReMe service and health
-heartbeat use `launchd`. It is not a model router, multi-agent orchestrator,
-prompt collector, or replacement for repository rules.
+It is not an ADK, model router, multi-agent orchestrator, prompt collector, or
+replacement for repository rules. The optional support installer is macOS-first
+because its ReMe service and heartbeat use `launchd`.
 
 ## The pain it removes
 
-| Pain | Runtime answer |
+| Pain | Skill-layer answer |
 | --- | --- |
-| Codex and Claude execute different global rules | One Hook dispatcher and one policy implementation |
-| Several memory systems contradict current code | ReMe stores only durable history; repository state remains current truth |
-| More Skills are installed but nothing is removed | Promptfoo ablation supports explicit keep/update/remove decisions |
-| Hooks accumulate raw prompts, commands, and secrets | Evidence contains allowlisted metadata and keyed fingerprints only |
-| Global edits are risky and hard to reproduce | Versioned releases, atomic writes, receipts, backups, and exact rollback |
-| Task state, memory, Skills, and permissions overlap | Each concern has one owner and a documented boundary |
+| More Skills are installed but nothing is removed | Explicit discover/update/evaluate/remove lifecycle |
+| Project, global, and plugin copies drift | One canonical source per capability |
+| Similar Skills compete for attention | Native inventory plus targeted Promptfoo ablation |
+| Memory, plans, permissions, and Skills overlap | Each concern has one owner |
+| Codex and Claude apply different global controls | Optional shared Hook and policy implementation |
+| Global changes are hard to reproduce | Versioned support releases, receipts, backups, and rollback |
 
-## Architecture
+## Layer model
 
 ```text
-Native Skill discovery  -> reusable capability truth
-Repository files/tests  -> current project truth
-Buildomator/HANDOFF      -> current long-task state
+Agent application / ADK  -> builds and runs agents
+Native Agent Skills      -> reusable capability truth
+Repository files/tests   -> current project truth
+Buildomator / HANDOFF     -> current long-task state
 ReMe                     -> bounded durable history
 Policy Hooks             -> side-effect authorization
 Promptfoo                -> controlled Skill ablation
 ```
 
-The runtime does not install a shadow capability registry. Project Skills stay
-in their repositories. Upstream Skills stay owned by their upstream GitHub
-sources. See [the architecture document](docs/architecture.md) for data flow,
-policy classes, privacy guarantees, and failure behavior.
+Native Codex/Claude discovery remains authoritative. There is no shadow
+capability registry. See [the architecture document](docs/architecture.md) for
+the ownership boundaries and optional support flow.
 
-## Included capabilities
+## Included Skills
 
-- Shared Codex and Claude lifecycle Hooks.
-- Fail-closed blocking for destructive commands, verification bypasses,
-  protected-branch direct writes, and unversioned global runtime edits.
-- Audit-only classification for production deploy and remote D1 operations;
-  repository evidence gates retain authority.
-- Private, bounded event evidence without raw tool content.
-- ReMe `0.4.1.3` on loopback with BM25, wikilinks, project namespaces, and no
-  embedding/vector database.
-- Atomic installation, immutable releases, source provenance, automatic backup,
-  rollback, health heartbeat, and read-after-write verification.
-- `agent-runtime` Skill for audit/install/update/rollback operations.
-- `first-principles-checkpoint` Skill for stopping process and context drift.
-- `skill-governance` Skill and a two-arm Promptfoo eval template.
+| Skill | Role |
+| --- | --- |
+| `evolve-skills` | Audit a Skill portfolio, update canonical sources, deduplicate, and remove obsolete capabilities |
+| `skill-governance` | Decide keep/update/remove for one uncertain Skill using a minimal Promptfoo ablation |
+| `first-principles-checkpoint` | Stop scope and context drift at major decision points |
 
-## Install the runtime
-
-Requirements: macOS, Git, Python 3.11, an existing Codex or Claude setup, and
-network access during installation so Python can pull pinned ReMe packages from
-PyPI.
+Install all three from their canonical GitHub source:
 
 ```bash
-git clone https://github.com/hanzw/agent-runtime.git
-cd agent-runtime
+npx skills@latest add hanzw/agent-skill-evolution \
+  --skill evolve-skills skill-governance first-principles-checkpoint \
+  --global --agent codex claude-code --yes
+```
+
+If upgrading from v2.0.0, remove the retired abstraction after installing the
+replacement:
+
+```bash
+npx skills@latest remove agent-runtime \
+  --global --agent codex claude-code --yes
+```
+
+`skill-governance` uses the upstream `promptfoo-evals` and
+`promptfoo-provider-setup` Skills rather than copying them:
+
+```bash
+npx skills@latest add promptfoo/promptfoo \
+  --skill promptfoo-evals promptfoo-provider-setup \
+  --global --agent codex claude-code --yes
+```
+
+Already-running agents normally discover Skill changes on their next turn or
+session. Buildomator is the current name for GSD 4.x; use `/bm:` for new task
+state commands.
+
+## Optional support layer
+
+The repository also contains a small shared implementation for Codex and Claude:
+
+- one lifecycle Hook dispatcher and deterministic side-effect policy;
+- private bounded evidence without raw prompts, commands, or tool payloads;
+- ReMe `0.4.1.3` with BM25, project namespaces, and bounded recall;
+- atomic installation, immutable releases, provenance, backup, rollback, and
+  health verification.
+
+Requirements: macOS, Git, Python 3.11, an existing Codex or Claude setup, and
+network access to the canonical Python package sources.
+
+```bash
+git clone https://github.com/hanzw/agent-skill-evolution.git
+cd agent-skill-evolution
 python3 -m unittest discover -s tests -v
 python3.11 -m agent_runtime.installer install --source .
 ```
 
-The installer directly pulls these runtime dependencies from their canonical
-package source:
+The internal package remains named `agent_runtime` because it implements Hook,
+policy, memory, and service execution. It is deliberately not exposed as a
+Skill capability.
 
-| Dependency | Role | Adjust when |
-| --- | --- | --- |
-| [`reme-ai==0.4.1.3`](https://pypi.org/project/reme-ai/) | Local durable-memory MCP and file workspace | ReMe behavior or protocol compatibility changes |
-| [`agentscope==2.0.4`](https://pypi.org/project/agentscope/) | ReMe runtime dependency | The pinned ReMe release requires another version |
-| Native Codex/Claude Hooks | Lifecycle delivery and Skill discovery | Either runtime changes its Hook schema |
+| Dependency | Support role |
+| --- | --- |
+| [`reme-ai==0.4.1.3`](https://pypi.org/project/reme-ai/) | Local durable-memory MCP and file workspace |
+| [`agentscope==2.0.4`](https://pypi.org/project/agentscope/) | Pinned ReMe dependency |
+| Native Codex/Claude Hooks | Lifecycle delivery and side-effect policy |
 
-No dependency source is vendored and the installer does not rewrite unrelated
-MCP package versions.
+No dependency is vendored. The installer does not delete Skills, migrate
+personal logs, remove unrelated MCP servers, or edit project repositories.
 
-### What installation changes
+### Managed changes
 
-- `CODEX_HOME/hooks.json`: replaces the user-level Hook graph.
-- `CLAUDE_HOME/settings.json`: replaces only the `hooks` field.
-- `CODEX_HOME/config.toml`: enables Hooks, sets `workspace-write`, `on-request`,
-  `auto_review`, workspace network access, and the loopback ReMe MCP.
-- Claude's user configuration: adds or updates only the `reme` MCP entry.
-- Global Codex and Claude instructions: adds or replaces only `Memory Model`.
-- `AGENT_RUNTIME_HOME`: writes private releases, backups, receipts, state, and
-  the pinned ReMe environment.
-- The user LaunchAgents directory: installs runtime heartbeat and ReMe services.
+- Codex and Claude user Hook configuration;
+- the minimum Codex policy fields and loopback ReMe MCP entry;
+- only the global `Memory Model` instruction section;
+- private releases, backups, receipts, evidence, and ReMe environment;
+- two user-level `launchd` services.
 
-The installer does **not** delete Skills, migrate personal logs, remove other
-MCP servers, or edit project repositories.
-
-## Install the Skills
-
-The native [`skills`](https://www.npmjs.com/package/skills) installer pulls each
-Skill directly from its canonical GitHub repository:
-
-| Skill | Role | Adjust when |
-| --- | --- | --- |
-| `agent-runtime` | Audit, install, update, diagnose, and roll back the runtime | Managed files, service model, or verification changes |
-| `first-principles-checkpoint` | Stop scope/context drift and choose the next smallest proof | The subtraction decision rule changes |
-| `skill-governance` | Decide keep/update/remove for one Skill | Lifecycle evidence requirements change |
-| `promptfoo-evals` | Author and run controlled eval suites | Cases or assertions change |
-| `promptfoo-provider-setup` | Connect Promptfoo to the evaluated runtime | Authentication or provider mapping changes |
-
-```bash
-npx skills@latest add hanzw/agent-runtime --skill agent-runtime \
-  --global --agent codex claude-code --yes
-npx skills@latest add hanzw/agent-runtime --skill skill-governance \
-  --global --agent codex claude-code --yes
-npx skills@latest add hanzw/agent-runtime --skill first-principles-checkpoint \
-  --global --agent codex claude-code --yes
-npx skills@latest add promptfoo/promptfoo --skill promptfoo-evals \
-  --global --agent codex claude-code --yes
-npx skills@latest add promptfoo/promptfoo --skill promptfoo-provider-setup \
-  --global --agent codex claude-code --yes
-```
-
-Already-running agents discover newly installed Skills on their next turn or
-session. Buildomator is the current name for GSD 4.x; use `/bm:` for new task
-state commands.
-
-## Update
+## Update and roll back
 
 ```bash
 git pull --ff-only
 python3 -m unittest discover -s tests -v
 python3.11 -m agent_runtime.installer install --source .
-npx skills@latest update agent-runtime skill-governance \
+npx skills@latest update evolve-skills skill-governance \
   first-principles-checkpoint --global --yes
 ```
 
-## Roll back
-
-Every successful install prints and records its exact backup path in the
-runtime receipt.
+Every support-layer installation records an exact backup path:
 
 ```bash
 python3.11 -m agent_runtime.installer rollback \
   --backup <exact-backup-path-from-install-receipt>
 ```
 
-Rollback restores managed configuration bytes and prior service definitions.
-It never deletes immutable runtime releases or evidence directories.
+## Small configuration surface
 
-## Adjust policy without growing another framework
+- Skill lifecycle rules: `skills/evolve-skills` and `skills/skill-governance`.
+- Side-effect policy: `agent_runtime/policy.py` plus focused tests.
+- Memory bounds: `agent_runtime/memory.py` and `reme-minimal.yaml`.
+- Installation targets: `agent_runtime/installer.py`.
 
-Policy behavior lives in `agent_runtime/policy.py`; every changed rule requires
-a focused case in `tests/test_policy_runtime.py`. Memory limits live in
-`agent_runtime/memory.py` and `agent_runtime/reme-minimal.yaml`. Installation
-targets live in `agent_runtime/installer.py`.
+That is the full configuration surface. Add an abstraction only after a second
+real use case proves it is needed.
 
-That is the entire configuration surface. Add a new abstraction only after a
-second real use case proves it is needed.
-
-## Security
-
-Read [SECURITY.md](SECURITY.md) before installation. The installer changes
-user-level agent configuration and should be reviewed like any other execution
-policy. Report vulnerabilities through GitHub private security advisories.
-
+Read [SECURITY.md](SECURITY.md) before installing the optional support layer.
 MIT licensed. Banner generated for this repository with OpenAI image generation.
